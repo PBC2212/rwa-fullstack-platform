@@ -57,7 +57,7 @@ const AboutSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="scroll-reveal text-4xl md:text-5xl font-bold text-foreground mb-6">
-            About <span className="gold-gradient bg-clip-text text-transparent">RWA Token</span>
+            About <span className="gold-gradient bg-clip-text text-transparent">Prime Integrity Group</span>
           </h2>
           <p className="scroll-reveal text-xl text-muted-foreground max-w-3xl mx-auto">
             We're pioneering the future of asset ownership through blockchain technology, 
@@ -109,7 +109,7 @@ const AboutSection = () => {
             <div className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden">
               <img 
                 src={teamPhoto} 
-                alt="RWA Token Leadership Team"
+                alt="Prime Integrity Group Leadership Team"
                 className="w-full h-64 md:h-80 object-cover"
               />
               <div className="absolute inset-0 bg-primary/20"></div>
@@ -137,7 +137,7 @@ const AboutSection = () => {
               Our Story
             </h3>
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Founded in 2020 by a team of finance and technology veterans, RWA Token emerged from the vision 
+              Founded in 2020 by a team of finance and technology veterans, Prime Integrity Group emerged from the vision 
               to democratize access to high-value assets. We recognized that traditional investment barriers 
               were keeping everyday investors from accessing the same opportunities available to institutions.
             </p>

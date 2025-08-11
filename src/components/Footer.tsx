@@ -55,9 +55,9 @@ const Footer = () => {
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-6">
                 <div className="w-10 h-10 teal-gradient rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">R</span>
+                  <span className="text-white font-bold text-xl">P</span>
                 </div>
-                <span className="text-2xl font-bold">RWA Token</span>
+                <span className="text-2xl font-bold">Prime Integrity Group</span>
               </div>
               <p className="text-primary-foreground/80 mb-6 leading-relaxed">
                 Democratizing access to real-world assets through innovative blockchain tokenization. 
@@ -176,7 +176,7 @@ const Footer = () => {
         <div className="border-t border-primary-foreground/20 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-primary-foreground/80 text-sm">
-              © 2024 RWA Token. All rights reserved.
+              © 2024 Prime Integrity Group. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm">
               <span className="text-primary-foreground/80">
