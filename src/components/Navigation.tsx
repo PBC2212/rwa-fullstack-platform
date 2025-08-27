@@ -47,7 +47,7 @@ const Navigation = () => {
             <div className="w-8 h-8 teal-gradient rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">I</span>
             </div>
-            <span className="text-xl font-bold text-foreground">IME Capital Trust</span>
+            <span className="text-xl font-bold text-amber-400">IME Capital Trust</span>
           </div>
 
           {/* Desktop Navigation */}
