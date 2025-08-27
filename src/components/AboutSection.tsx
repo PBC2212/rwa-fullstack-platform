@@ -147,7 +147,7 @@ const AboutSection = () => {
               Our tokenization process transforms illiquid assets into accessible, tradeable digital tokens.
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Today, we're proud to serve over 50,000 investors worldwide, having tokenized billions in 
+              Today, we're proud to serve over 300 investors worldwide, having tokenized billions in 
               real-world assets and maintained industry-leading security and compliance standards.
             </p>
           </div>
