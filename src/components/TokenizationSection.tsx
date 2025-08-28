@@ -128,8 +128,8 @@ const TokenizationSection = () => {
                 Regulatory Compliance
               </h3>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                We maintain the highest standards of regulatory compliance, working closely with 
-                legal experts and regulatory bodies to ensure all tokenized assets meet current 
+                We maintain the highest standards of compliance, working closely with 
+                legal experts to ensure all tokenized assets meet current 
                 and evolving compliance requirements.
               </p>
               
