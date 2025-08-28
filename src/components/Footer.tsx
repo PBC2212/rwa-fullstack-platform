@@ -180,10 +180,8 @@ const Footer = () => {
             </p>
             <div className="flex items-center space-x-6 text-sm">
               <span className="text-primary-foreground/80">
-                Securities offered through licensed broker-dealers
               </span>
               <span className="text-primary-foreground/80">
-                FINRA/SIPC Member
               </span>
             </div>
           </div>
