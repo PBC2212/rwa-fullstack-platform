@@ -40,7 +40,7 @@ const AboutSection = () => {
       bio: "Blockchain architect with experience at JPMorgan and deep expertise in smart contracts."
     },
     {
-      name: "Jacob Smith",
+      name: "David Kim",
       role: "Chief Compliance Officer",
       bio: "Former SEC attorney specializing in securities law and regulatory compliance."
     },
@@ -147,7 +147,7 @@ const AboutSection = () => {
               Our tokenization process transforms illiquid assets into accessible, tradeable digital tokens.
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Today, we're proud to serve over 300 investors worldwide, having tokenized billions in 
+              Today, we're proud to serve over 300 investors worldwide, having tokenized millions in 
               real-world assets and maintained industry-leading security and compliance standards.
             </p>
           </div>
