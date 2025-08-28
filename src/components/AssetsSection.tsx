@@ -9,20 +9,20 @@ const AssetsSection = () => {
   const assets = [
     {
       id: 1,
-      name: "Prime Manhattan Tower",
+      name: "Detroit Complex Apartments",
       type: "Real Estate",
       image: realEstateImage,
       value: "$45.2M",
       tokenized: "85%",
-      roi: "+12.4%",
-      location: "New York, NY",
+      roi: "+10.4%",
+      location: "Detroit, MI",
       status: "Active Trading",
-      investors: 1247,
+      investors: 100,
       description: "Luxury commercial real estate in prime Manhattan location with stable rental income and appreciation potential."
     },
     {
       id: 2,
-      name: "Gold Reserve Portfolio",
+      name: "Ruby Structured Deal",
       type: "Commodities",
       image: commoditiesImage,
       value: "$28.7M",
@@ -30,8 +30,8 @@ const AssetsSection = () => {
       roi: "+8.9%",
       location: "Swiss Vault",
       status: "Fully Tokenized",
-      investors: 892,
-      description: "Certified gold bullion stored in secure Swiss vaults, providing hedge against inflation and market volatility."
+      investors: 20,
+      description: "Certified ruby stored in secure Swiss vaults, providing hedge against inflation and market volatility."
     },
     {
       id: 3,
