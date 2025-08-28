@@ -18,12 +18,15 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { label: "Start Tokenization", href: "#tokenization" },
-    { label: "Contact", href: "#contact" },
+    { label: "Start Tokenization", href: "/start-tokenization", isRoute: true },
+    { label: "Contact", href: "#contact", isRoute: false },
   ];
 
-  const handleNavigation = (href: string) => {
-    if (location.pathname === '/') {
+  const handleNavigation = (href: string, isRoute: boolean) => {
+    if (isRoute) {
+      // Navigate to a different page
+      navigate(href);
+    } else if (location.pathname === '/') {
       // If on home page, scroll to section
       const element = document.querySelector(href);
       if (element) {
@@ -59,7 +62,7 @@ const Navigation = () => {
             {navItems.map((item) => (
               <button
                 key={item.label}
-                onClick={() => handleNavigation(item.href)}
+                onClick={() => handleNavigation(item.href, item.isRoute)}
                 className="text-amber-400 hover:text-accent-teal transition-colors duration-200 font-medium"
               >
                 {item.label}
@@ -94,7 +97,7 @@ const Navigation = () => {
               {navItems.map((item) => (
                 <button
                   key={item.label}
-                  onClick={() => handleNavigation(item.href)}
+                  onClick={() => handleNavigation(item.href, item.isRoute)}
                   className="block w-full text-left text-amber-400 hover:text-accent-teal transition-colors duration-200 font-medium py-2"
                 >
                   {item.label}
