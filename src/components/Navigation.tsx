@@ -66,7 +66,7 @@ const Navigation = () => {
           {/* CTA Button */}
           <div className="hidden md:block">
             <Button variant="hero" size="lg">
-              Get Started
+              Client Login
             </Button>
           </div>
 
@@ -98,7 +98,7 @@ const Navigation = () => {
               ))}
               <div className="pt-4">
                 <Button variant="hero" size="lg" className="w-full">
-                  Get Started
+                  Client Login
                 </Button>
               </div>
             </div>
