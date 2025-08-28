@@ -2,10 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, MapPin, Calendar, DollarSign } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import realEstateImage from "@/assets/real-estate-token.jpg";
 import commoditiesImage from "@/assets/commodities-token.jpg";
 
 const AssetsSection = () => {
+  const navigate = useNavigate();
   const assets = [
     {
       id: 1,
@@ -155,7 +157,11 @@ const AssetsSection = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button variant="hero" className="flex-1">
+                  <Button 
+                    variant="hero" 
+                    className="flex-1"
+                    onClick={() => asset.id === 1 && navigate(`/asset/${asset.id}`)}
+                  >
                     View Details
                   </Button>
                   <Button variant="outline-teal" className="flex-1">
