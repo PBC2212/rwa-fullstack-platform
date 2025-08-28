@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
+import financialAvatar from "@/assets/financial-avatar.jpg";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,25 +19,8 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = [
-    { label: "Start Tokenization", href: "/start-tokenization", isRoute: true },
-    { label: "Contact", href: "#contact", isRoute: false },
-  ];
-
-  const handleNavigation = (href: string, isRoute: boolean) => {
-    if (isRoute) {
-      // Navigate to a different page
-      navigate(href);
-    } else if (location.pathname === '/') {
-      // If on home page, scroll to section
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    } else {
-      // If on other page, navigate to home with hash
-      navigate(`/${href}`);
-    }
+  const handleLogoClick = () => {
+    navigate('/');
     setIsMobileMenuOpen(false);
   };
 
@@ -50,25 +35,20 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <button 
+            onClick={handleLogoClick}
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={financialAvatar} alt="Financial Advisor" />
+              <AvatarFallback>FA</AvatarFallback>
+            </Avatar>
             <div className="w-8 h-8 teal-gradient rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">I</span>
             </div>
             <span className="text-xl font-bold text-amber-400">IME Capital Trust</span>
-          </div>
+          </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleNavigation(item.href, item.isRoute)}
-                className="text-amber-400 hover:text-accent-teal transition-colors duration-200 font-medium"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
 
           {/* CTA Button */}
           <div className="hidden md:block">
@@ -94,20 +74,9 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-background/95 backdrop-blur-md border-t border-border">
             <div className="px-4 py-6 space-y-4">
-              {navItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => handleNavigation(item.href, item.isRoute)}
-                  className="block w-full text-left text-amber-400 hover:text-accent-teal transition-colors duration-200 font-medium py-2"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="pt-4">
-                <Button variant="hero" size="lg" className="w-full">
-                  Client Login
-                </Button>
-              </div>
+              <Button variant="hero" size="lg" className="w-full">
+                Client Login
+              </Button>
             </div>
           </div>
         )}
