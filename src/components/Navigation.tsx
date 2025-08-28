@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, X } from "lucide-react";
-import financialAvatar from "@/assets/financial-avatar.jpg";
+import { Menu, X, Building2 } from "lucide-react";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,12 +37,8 @@ const Navigation = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={financialAvatar} alt="Financial Advisor" />
-              <AvatarFallback>FA</AvatarFallback>
-            </Avatar>
-            <div className="w-8 h-8 teal-gradient rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">I</span>
+            <div className="w-10 h-10 teal-gradient rounded-lg flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-amber-400">IME Capital Trust</span>
           </button>
