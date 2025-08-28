@@ -37,7 +37,7 @@ const Navigation = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-10 h-10 teal-gradient rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 gold-gradient rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-amber-400">IME Capital Trust</span>
