@@ -40,7 +40,7 @@ const AboutSection = () => {
       bio: "Blockchain architect with experience at JPMorgan and deep expertise in smart contracts."
     },
     {
-      name: "David Kim",
+      name: "Jacob Smith",
       role: "Chief Compliance Officer",
       bio: "Former SEC attorney specializing in securities law and regulatory compliance."
     },
