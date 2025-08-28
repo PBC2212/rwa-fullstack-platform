@@ -18,12 +18,7 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { label: "Home", href: "#home" },
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Assets", href: "#assets" },
-    { label: "Tokenization", href: "#tokenization" },
-    { label: "Investors", href: "#investors" },
-    { label: "About Us", href: "#about" },
+    { label: "Start Tokenization", href: "#tokenization" },
     { label: "Contact", href: "#contact" },
   ];
 
