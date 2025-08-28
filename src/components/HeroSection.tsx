@@ -88,7 +88,11 @@ const HeroSection = () => {
               Start Tokenizing
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button variant="glass" size="xl">
+            <Button 
+              variant="glass" 
+              size="xl"
+              onClick={() => navigate('/learn-how-it-works')}
+            >
               Learn How It Works
             </Button>
           </div>
