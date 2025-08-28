@@ -41,20 +41,20 @@ const ContactSection = () => {
     {
       icon: Mail,
       title: "Email",
-      content: "contact@rwatoken.com",
-      subContent: "info@rwatoken.com"
+      content: "info@imecapitaltrust.com",
+      subContent: "support@imecapitaltrust.com"
     },
     {
       icon: Phone,
       title: "Phone",
-      content: "+1 (555) 123-4567",
-      subContent: "+1 (555) 123-4568"
+      content: "+1 (248) 678-4819",
+      subContent: "+1 (313) 349-0034"
     },
     {
       icon: MapPin,
       title: "Address",
-      content: "123 Financial District",
-      subContent: "New York, NY 10004"
+      content: "124 Broadkill Avenue",
+      subContent: "Milton, DE 19968"
     },
     {
       icon: Clock,
