@@ -30,12 +30,12 @@ const AboutSection = () => {
 
   const team = [
     {
-      name: "Sarah Chen",
+      name: "Imani Mensah",
       role: "Chief Executive Officer",
       bio: "Former Goldman Sachs VP with 15+ years in asset management and fintech innovation."
     },
     {
-      name: "Michael Rodriguez",
+      name: "Amir Fakir",
       role: "Chief Technology Officer",
       bio: "Blockchain architect with experience at JPMorgan and deep expertise in smart contracts."
     },
