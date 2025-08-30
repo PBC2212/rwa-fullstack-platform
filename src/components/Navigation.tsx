@@ -40,7 +40,7 @@ const Navigation = () => {
             <div className="w-10 h-10 gold-gradient rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-amber-400">IME Capital Trust</span>
+            <span className="text-xl font-bold text-amber-400">IME Capital Tokenization</span>
           </button>
 
 
