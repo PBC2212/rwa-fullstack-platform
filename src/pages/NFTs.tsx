@@ -90,7 +90,7 @@ const NFTs = () => {
       const result = await api.lockCollateral(nftId);
       toast({
         title: "Collateral Locked",
-        description: `NFT locked as collateral (ID: ${result.collateralId})`,
+        description: `NFT locked in Tinlake pool (Loan ID: ${result.loanId}, Value: $${result.value?.toLocaleString()})`,
       });
       loadNFTs();
     } catch (error: any) {
@@ -230,12 +230,19 @@ const NFTs = () => {
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent>
-                  {nft.collateralValue && (
-                    <div className="text-sm text-muted-foreground mb-3">
-                      Collateral Value: ${nft.collateralValue.toLocaleString()}
-                    </div>
-                  )}
+                 <CardContent>
+                  <div className="space-y-2 mb-3">
+                    {nft.collateralValue && (
+                      <div className="text-sm text-muted-foreground">
+                        Collateral Value: ${nft.collateralValue.toLocaleString()}
+                      </div>
+                    )}
+                    {nft.loanId && (
+                      <div className="text-sm text-muted-foreground">
+                        Loan ID: {nft.loanId}
+                      </div>
+                    )}
+                  </div>
                   
                   {nft.isLocked ? (
                     <Button 

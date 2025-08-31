@@ -58,10 +58,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ nftId }),
     }),
-  unlockCollateral: (collateralId: string) => 
+  unlockCollateral: (nftId: string) => 
     apiCall('/api/collateral/unlock', {
       method: 'POST',
-      body: JSON.stringify({ collateralId }),
+      body: JSON.stringify({ nftId }),
     }),
 
   // Borrowing
