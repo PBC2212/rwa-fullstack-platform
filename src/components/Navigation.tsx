@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Building2 } from "lucide-react";
+import { Menu, X, Coins } from "lucide-react";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,7 +38,7 @@ const Navigation = () => {
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-10 h-10 gold-gradient rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
+              <Coins className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-amber-400">IME Capital Tokenization</span>
           </button>
