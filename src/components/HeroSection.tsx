@@ -48,7 +48,7 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Main Headline */}
-          <h1 className="scroll-reveal text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="scroll-reveal text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             Turning Real Assets Into{" "}
             <span className="gold-gradient bg-clip-text text-transparent">
               Digital Opportunities
