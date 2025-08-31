@@ -9,6 +9,8 @@ import ViewAssets from "./pages/ViewAssets";
 import StartTokenization from "./pages/StartTokenization";
 import LearnHowItWorks from "./pages/LearnHowItWorks";
 import NotFound from "./pages/NotFound";
+import AuthPage from "./components/auth/AuthPage";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/asset/:assetId" element={<AssetDetails />} />
           <Route path="/assets" element={<ViewAssets />} />
           <Route path="/learn-how-it-works" element={<LearnHowItWorks />} />

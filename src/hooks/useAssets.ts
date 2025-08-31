@@ -27,10 +27,6 @@ export const useAssets = (type?: string) => {
   return useQuery({
     queryKey: ['assets', type],
     queryFn: async () => {
-      if (!isSupabaseConfigured() || !supabase) {
-        throw new Error('Supabase is not configured. Please complete the Supabase integration.');
-      }
-
       let query = supabase
         .from('assets')
         .select('*')
@@ -58,10 +54,6 @@ export const useAsset = (id: number) => {
   return useQuery({
     queryKey: ['asset', id],
     queryFn: async () => {
-      if (!isSupabaseConfigured() || !supabase) {
-        throw new Error('Supabase is not configured. Please complete the Supabase integration.');
-      }
-
       const { data, error } = await supabase
         .from('assets')
         .select('*')

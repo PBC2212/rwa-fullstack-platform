@@ -83,9 +83,9 @@ const HeroSection = () => {
               variant="hero" 
               size="xl" 
               className="group"
-              onClick={() => navigate('/start-tokenization')}
+              onClick={() => navigate('/auth')}
             >
-              Start Tokenizing
+              Get Started
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 

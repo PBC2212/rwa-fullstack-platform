@@ -56,7 +56,7 @@ const ViewAssets = () => {
 
   // Calculate metrics from live data
   const totalValue = assets ? assets.reduce((sum, asset) => sum + (asset.value_amount / 1000000), 0) : 0;
-  const averageROI = assets ? assets.reduce((sum, asset) => sum + asset.roi_percentage, 0) / assets.length : 0;
+  const averageROI = assets ? assets.reduce((sum, asset) => sum + asset.roi_percentage, 0) / (assets.length || 1) : 0;
   const totalInvestors = assets ? assets.reduce((sum, asset) => sum + asset.investors_count, 0) : 0;
 
   // Format assets for display
