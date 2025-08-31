@@ -38,10 +38,10 @@ const StartTokenization = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.companyName || !formData.ein || !formData.email || !formData.country || !formData.investorType) {
+    if (!formData.fullName || !formData.companyName || !formData.ein || !formData.email || !formData.country || !formData.investorType || !formData.document) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields and upload verification documents.",
         variant: "destructive",
       });
       return;
@@ -199,7 +199,7 @@ const StartTokenization = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="document">Upload ID Document</Label>
+                    <Label htmlFor="document">Upload Verification Documents *</Label>
                     <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent-teal/50 transition-colors">
                       <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                       <input
@@ -208,13 +208,15 @@ const StartTokenization = () => {
                         onChange={handleFileUpload}
                         accept=".pdf,.jpg,.jpeg,.png"
                         className="hidden"
+                        required
                       />
                       <label htmlFor="document" className="cursor-pointer">
                         <span className="text-sm text-muted-foreground">
-                          {formData.document ? formData.document.name : "Click to upload passport, driver's license, or ID card"}
+                          {formData.document ? formData.document.name : "Click to upload required documents"}
                         </span>
                       </label>
-                      <p className="text-xs text-muted-foreground mt-1">PDF, JPG, PNG up to 10MB</p>
+                      <p className="text-xs text-muted-foreground mt-1">Required: Principal ID, EIN Certificate, Articles of Incorporation, Operating Agreement</p>
+                      <p className="text-xs text-muted-foreground">PDF, JPG, PNG up to 10MB each</p>
                     </div>
                   </div>
 
