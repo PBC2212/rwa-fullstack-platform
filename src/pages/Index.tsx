@@ -7,6 +7,9 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   useEffect(() => {
+    // Debug log to see if component is mounting
+    console.log("Index component mounted");
+    
     // Intersection Observer for scroll animations
     const observer = new IntersectionObserver(
       (entries) => {
@@ -26,7 +29,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <main>
         <HeroSection />
