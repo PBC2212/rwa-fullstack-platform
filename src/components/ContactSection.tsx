@@ -41,8 +41,8 @@ const ContactSection = () => {
     {
       icon: Mail,
       title: "Email",
-      content: "info@imecapitaltrust.com",
-      subContent: "support@imecapitaltrust.com"
+      content: "info@imecapitaltokenization.com",
+      subContent: "support@imecapitaltokenization.com"
     },
     {
       icon: Phone,
