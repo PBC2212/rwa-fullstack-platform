@@ -53,7 +53,11 @@ const Navigation = () => {
             >
               View Assets
             </Button>
-            <Button variant="hero" size="lg">
+            <Button 
+              variant="hero" 
+              size="lg"
+              onClick={() => navigate('/auth')}
+            >
               Client Login
             </Button>
           </div>
@@ -85,7 +89,15 @@ const Navigation = () => {
               >
                 View Assets
               </Button>
-              <Button variant="hero" size="lg" className="w-full">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="w-full"
+                onClick={() => {
+                  navigate('/auth');
+                  setIsMobileMenuOpen(false);
+                }}
+              >
                 Client Login
               </Button>
             </div>
