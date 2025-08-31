@@ -100,11 +100,11 @@ const HeroSection = () => {
           {/* Stats */}
           <div className="scroll-reveal grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 pt-8 border-t border-white/20">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">$2.4B+</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">25.2M+</div>
               <div className="text-white/70">Assets Tokenized</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">50K+</div>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">100</div>
               <div className="text-white/70">Active Investors</div>
             </div>
             <div className="text-center">
