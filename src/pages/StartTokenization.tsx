@@ -17,6 +17,8 @@ const StartTokenization = () => {
   
   const [formData, setFormData] = useState({
     fullName: "",
+    companyName: "",
+    ein: "",
     email: "",
     country: "",
     investorType: "",
@@ -36,7 +38,7 @@ const StartTokenization = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.email || !formData.country || !formData.investorType) {
+    if (!formData.fullName || !formData.companyName || !formData.ein || !formData.email || !formData.country || !formData.investorType) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
@@ -130,6 +132,30 @@ const StartTokenization = () => {
                       value={formData.fullName}
                       onChange={(e) => handleInputChange("fullName", e.target.value)}
                       placeholder="Enter your full legal name"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Company Name *</Label>
+                    <Input
+                      id="companyName"
+                      type="text"
+                      value={formData.companyName}
+                      onChange={(e) => handleInputChange("companyName", e.target.value)}
+                      placeholder="Enter your company name"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ein">EIN (Employer Identification Number) *</Label>
+                    <Input
+                      id="ein"
+                      type="text"
+                      value={formData.ein}
+                      onChange={(e) => handleInputChange("ein", e.target.value)}
+                      placeholder="XX-XXXXXXX"
                       required
                     />
                   </div>
