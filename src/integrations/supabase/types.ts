@@ -82,7 +82,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      assets_public_summary: {
+        Row: {
+          average_roi: number | null
+          commodities_count: number | null
+          real_estate_count: number | null
+          total_assets: number | null
+          total_value_millions: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
