@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AssetDetails from "./pages/AssetDetails";
+import ViewAssets from "./pages/ViewAssets";
 import StartTokenization from "./pages/StartTokenization";
 import LearnHowItWorks from "./pages/LearnHowItWorks";
 import NotFound from "./pages/NotFound";
@@ -20,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/asset/:assetId" element={<AssetDetails />} />
+          <Route path="/assets" element={<ViewAssets />} />
           <Route path="/learn-how-it-works" element={<LearnHowItWorks />} />
           <Route path="/start-tokenization" element={<StartTokenization />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

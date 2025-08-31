@@ -44,8 +44,15 @@ const Navigation = () => {
           </button>
 
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/assets')}
+              className="border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
+            >
+              View Assets
+            </Button>
             <Button variant="hero" size="lg">
               Client Login
             </Button>
@@ -68,6 +75,16 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-background/95 backdrop-blur-md border-t border-border">
             <div className="px-4 py-6 space-y-4">
+              <Button 
+                variant="outline" 
+                className="w-full border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
+                onClick={() => {
+                  navigate('/assets');
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                View Assets
+              </Button>
               <Button variant="hero" size="lg" className="w-full">
                 Client Login
               </Button>
