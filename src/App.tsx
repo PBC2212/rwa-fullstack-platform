@@ -11,6 +11,10 @@ import LearnHowItWorks from "./pages/LearnHowItWorks";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./components/auth/AuthPage";
 import Dashboard from "./pages/Dashboard";
+import Pools from "./pages/Pools";
+import NFTs from "./pages/NFTs";
+import Portfolio from "./pages/Portfolio";
+import Transactions from "./pages/Transactions";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +28,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/pools" element={<Pools />} />
+          <Route path="/nfts" element={<NFTs />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/transactions" element={<Transactions />} />
           <Route path="/asset/:assetId" element={<AssetDetails />} />
           <Route path="/assets" element={<ViewAssets />} />
           <Route path="/learn-how-it-works" element={<LearnHowItWorks />} />

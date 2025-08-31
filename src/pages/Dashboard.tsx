@@ -68,34 +68,34 @@ const Dashboard = () => {
     }
   };
 
-  const mockTokenizationActions = [
+  const defiActions = [
     {
-      title: "Create New Asset Token",
-      description: "Tokenize a new real-world asset using Centrifuge protocol",
-      icon: <Coins className="w-5 h-5" />,
-      action: () => toast({ title: "Feature Coming Soon", description: "Centrifuge integration in development" }),
-      badge: "New"
-    },
-    {
-      title: "View Portfolio",
-      description: "Monitor your tokenized asset investments and performance",
+      title: "Liquidity Pools",
+      description: "Deposit liquidity to earn yield or borrow against collateral",
       icon: <TrendingUp className="w-5 h-5" />,
-      action: () => navigate('/assets'),
+      action: () => navigate('/pools'),
       badge: null
     },
     {
-      title: "Property Management",
-      description: "Manage real estate tokens and rental income distribution",
-      icon: <Building className="w-5 h-5" />,
-      action: () => toast({ title: "Feature Coming Soon", description: "Property management tools in development" }),
-      badge: "Beta"
+      title: "NFT Collateral",
+      description: "Mint NFTs and use them as collateral for borrowing",
+      icon: <Coins className="w-5 h-5" />,
+      action: () => navigate('/nfts'),
+      badge: null
     },
     {
-      title: "Trade Tokens",
-      description: "Buy and sell tokenized asset shares on the marketplace",
+      title: "Portfolio",
+      description: "View your balances, loans, and staked positions",
+      icon: <Building className="w-5 h-5" />,
+      action: () => navigate('/portfolio'),
+      badge: null
+    },
+    {
+      title: "Transactions",
+      description: "Track all your DeFi protocol interactions",
       icon: <ShoppingCart className="w-5 h-5" />,
-      action: () => toast({ title: "Feature Coming Soon", description: "Trading functionality in development" }),
-      badge: "Beta"
+      action: () => navigate('/transactions'),
+      badge: null
     }
   ];
 
@@ -161,11 +161,11 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Tokenization Actions */}
+          {/* DeFi Actions */}
           <div>
-            <h2 className="text-2xl font-semibold mb-6">RWA Tokenization Actions</h2>
+            <h2 className="text-2xl font-semibold mb-6">DeFi Protocol Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {mockTokenizationActions.map((action, index) => (
+              {defiActions.map((action, index) => (
                 <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center justify-between">
