@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 
 export interface Asset {
   id: number;
@@ -27,6 +27,10 @@ export const useAssets = (type?: string) => {
   return useQuery({
     queryKey: ['assets', type],
     queryFn: async () => {
+      if (!isSupabaseConfigured() || !supabase) {
+        throw new Error('Supabase is not configured. Please complete the Supabase integration.');
+      }
+
       let query = supabase
         .from('assets')
         .select('*')
@@ -46,6 +50,7 @@ export const useAssets = (type?: string) => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    enabled: isSupabaseConfigured(), // Only run query if Supabase is configured
   });
 };
 
@@ -53,6 +58,10 @@ export const useAsset = (id: number) => {
   return useQuery({
     queryKey: ['asset', id],
     queryFn: async () => {
+      if (!isSupabaseConfigured() || !supabase) {
+        throw new Error('Supabase is not configured. Please complete the Supabase integration.');
+      }
+
       const { data, error } = await supabase
         .from('assets')
         .select('*')
@@ -65,6 +74,6 @@ export const useAsset = (id: number) => {
 
       return data as Asset;
     },
-    enabled: !!id,
+    enabled: !!id && isSupabaseConfigured(),
   });
 };

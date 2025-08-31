@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, MapPin, Users, DollarSign, Filter, Building, Gem, BarChart3, Clock, Shield, AlertCircle } from "lucide-react";
+import { TrendingUp, MapPin, Users, DollarSign, Filter, Building, Gem, BarChart3, Clock, Shield, AlertCircle, Settings } from "lucide-react";
 import { useAssets } from "@/hooks/useAssets";
+import { isSupabaseConfigured } from "@/integrations/supabase/client";
 import realEstateImage from "@/assets/real-estate-token.jpg";
 import commoditiesImage from "@/assets/commodities-token.jpg";
 
@@ -144,6 +145,17 @@ const ViewAssets = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            ) : !isSupabaseConfigured() ? (
+              <div className="text-center py-12">
+                <Settings className="w-12 h-12 text-accent-gold mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Supabase Integration Required</h3>
+                <p className="text-muted-foreground mb-4">
+                  To view live asset data, please complete the Supabase integration by clicking the green Supabase button in the top right corner.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  After connecting, run the database setup SQL to create your assets table.
+                </p>
               </div>
             ) : error ? (
               <div className="text-center py-12">
