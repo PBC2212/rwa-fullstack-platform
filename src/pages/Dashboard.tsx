@@ -1,227 +1,233 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LogOut, Coins, TrendingUp, Building, ShoppingCart } from 'lucide-react';
+import { Loader2, TrendingUp, Building2, ShoppingCart, Droplets, FileCheck, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { api } from '@/lib/api';
 
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [portfolioSummary, setPortfolioSummary] = useState({
+    totalValue: 0,
+    totalTokens: 0,
+    pendingAssets: 0,
+    kycStatus: 'pending'
+  });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session?.user) {
-          navigate('/auth');
-        }
-        
-        setLoading(false);
-      }
-    );
+    loadDashboardData();
+  }, []);
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (!session?.user) {
-        navigate('/auth');
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleLogout = async () => {
+  const loadDashboardData = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Logged out successfully",
-        description: "You have been signed out of your account.",
+      setLoading(true);
+      // Load dashboard summary data
+      const [tokens, pledgedAssets, kycStatus] = await Promise.allSettled([
+        api.getMyTokens(),
+        api.getPledgedAssets(),
+        api.getKYCStatus()
+      ]);
+
+      const tokensData = tokens.status === 'fulfilled' ? tokens.value : [];
+      const assetsData = pledgedAssets.status === 'fulfilled' ? pledgedAssets.value : [];
+      const kyc = kycStatus.status === 'fulfilled' ? kycStatus.value : { status: 'pending' };
+
+      setPortfolioSummary({
+        totalValue: tokensData.reduce((sum: number, token: any) => sum + (token.currentValue * token.balance), 0),
+        totalTokens: tokensData.length,
+        pendingAssets: assetsData.filter((asset: any) => asset.status === 'under_review').length,
+        kycStatus: kyc.status
       });
-      
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast({
-        title: "Logout failed",
-        description: "There was an error signing you out. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      console.error('Error loading dashboard data:', error);
+      // Don't show error toast as some endpoints might not be available yet
+    } finally {
+      setLoading(false);
     }
   };
 
-  const defiActions = [
+  const quickActions = [
     {
-      title: "Liquidity Pools",
-      description: "Deposit liquidity to earn yield or borrow against collateral",
-      icon: <TrendingUp className="w-5 h-5" />,
-      action: () => navigate('/pools'),
-      badge: null
+      title: "Complete KYC",
+      description: "Verify your identity to unlock all platform features",
+      icon: <FileCheck className="w-5 h-5" />,
+      action: () => navigate('/kyc'),
+      badge: portfolioSummary.kycStatus === 'pending' ? 'Required' : null,
+      variant: portfolioSummary.kycStatus === 'pending' ? 'default' : 'outline'
     },
     {
-      title: "NFT Collateral",
-      description: "Mint NFTs and use them as collateral for borrowing",
-      icon: <Coins className="w-5 h-5" />,
-      action: () => navigate('/nfts'),
-      badge: null
+      title: "Pledge Asset",
+      description: "Submit your real-world assets for tokenization",
+      icon: <Building2 className="w-5 h-5" />,
+      action: () => navigate('/asset-pledging'),
+      badge: null,
+      variant: 'default'
     },
     {
-      title: "Portfolio",
-      description: "View your balances, loans, and staked positions",
-      icon: <Building className="w-5 h-5" />,
-      action: () => navigate('/portfolio'),
-      badge: null
-    },
-    {
-      title: "Transactions",
-      description: "Track all your DeFi protocol interactions",
+      title: "Browse Marketplace",
+      description: "Trade tokenized assets with instant liquidity",
       icon: <ShoppingCart className="w-5 h-5" />,
-      action: () => navigate('/transactions'),
-      badge: null
+      action: () => navigate('/marketplace'),
+      badge: null,
+      variant: 'outline'
+    },
+    {
+      title: "Add Liquidity",
+      description: "Provide liquidity to earn yield on your tokens",
+      icon: <Droplets className="w-5 h-5" />,
+      action: () => navigate('/liquidity'),
+      badge: null,
+      variant: 'outline'
     }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-96">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
 
-  if (!user) {
-    return null; // Will redirect in useEffect
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-8 mt-16">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-              <p className="text-muted-foreground mt-2">
-                Welcome back, {user.email}
-              </p>
-            </div>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Your RWA tokenization platform overview
+          </p>
+        </div>
 
-          {/* User Info Card */}
+        {/* Portfolio Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Account Information</CardTitle>
-              <CardDescription>Your account details and authentication status</CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Portfolio Value
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email</p>
-                  <p className="text-sm">{user.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">User ID</p>
-                  <p className="text-sm font-mono">{user.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Account Created</p>
-                  <p className="text-sm">{new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email Verified</p>
-                  <Badge variant={user.email_confirmed_at ? "default" : "secondary"}>
-                    {user.email_confirmed_at ? "Verified" : "Pending"}
-                  </Badge>
-                </div>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                ${portfolioSummary.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Total token value
+              </p>
             </CardContent>
           </Card>
 
-          {/* DeFi Actions */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-6">DeFi Protocol Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {defiActions.map((action, index) => (
-                <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          {action.icon}
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{action.title}</CardTitle>
-                          {action.badge && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
-                              {action.badge}
-                            </Badge>
-                          )}
-                        </div>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                My Tokens
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{portfolioSummary.totalTokens}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                NFTs & fractional tokens
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Pending Assets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{portfolioSummary.pendingAssets}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Under review
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                KYC Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Badge 
+                variant={portfolioSummary.kycStatus === 'approved' ? 'default' : 'secondary'}
+                className="text-xs"
+              >
+                {portfolioSummary.kycStatus === 'approved' ? 'Verified' : 'Pending'}
+              </Badge>
+              <p className="text-xs text-muted-foreground mt-1">
+                Identity verification
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-2xl font-semibold mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {quickActions.map((action, index) => (
+              <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        {action.icon}
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{action.title}</CardTitle>
+                        {action.badge && (
+                          <Badge 
+                            variant={action.badge === 'Required' ? 'default' : 'secondary'} 
+                            className="ml-2 text-xs"
+                          >
+                            {action.badge}
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                    <CardDescription className="mt-2">
-                      {action.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button onClick={action.action} className="w-full">
-                      Get Started
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                  <CardDescription className="mt-2">
+                    {action.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={action.action} 
+                    variant={action.variant as any}
+                    className="w-full"
+                  >
+                    {action.badge === 'Required' ? 'Complete Now' : 'Get Started'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-
-          {/* JWT Token Info (for development) */}
-          {session?.access_token && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Authentication Token</CardTitle>
-                <CardDescription>
-                  JWT token for backend API integration (truncated for security)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm font-mono break-all">
-                    {session.access_token.substring(0, 50)}...
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Token expires: {new Date(session.expires_at! * 1000).toLocaleString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
-      </main>
 
-      <Footer />
+        {/* Recent Activity Placeholder */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Your latest platform interactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8 text-muted-foreground">
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No recent activity</p>
+              <p className="text-sm">Start by pledging your first asset or browsing the marketplace</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

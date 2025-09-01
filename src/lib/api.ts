@@ -31,28 +31,105 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 };
 
 export const api = {
-  // Pools
-  getPools: () => apiCall('/api/pools'),
-  depositToPool: (poolId: string, amount: number) => 
-    apiCall(`/api/pools/${poolId}/deposit`, {
+  // Authentication
+  login: (email: string, password: string) => 
+    apiCall('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ email, password }),
     }),
-  withdrawFromPool: (poolId: string, amount: number) => 
-    apiCall(`/api/pools/${poolId}/withdraw`, {
+  register: (email: string, password: string) => 
+    apiCall('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ email, password }),
     }),
 
-  // NFTs
+  // KYC
+  uploadKYC: (documents: FormData) => 
+    apiCall('/kyc/upload', {
+      method: 'POST',
+      body: documents,
+    }),
+  getKYCStatus: () => apiCall('/kyc/status'),
+
+  // Asset Pledging
+  pledgeAsset: (data: { 
+    assetType: string; 
+    estimatedValue: number; 
+    description: string; 
+    documents: string[] 
+  }) => 
+    apiCall('/assets/pledge', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getPledgedAssets: () => apiCall('/assets/my-pledged'),
+
+  // Tokens
+  getMyTokens: () => apiCall('/tokens/my-tokens'),
+  mintToken: (assetId: string, data: { 
+    tokenSymbol: string; 
+    totalSupply: number; 
+    fractional: boolean 
+  }) => 
+    apiCall(`/tokens/mint/${assetId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Marketplace
+  getMarketplaceListings: () => apiCall('/marketplace/listings'),
+  buyToken: (tokenId: string, amount: number) => 
+    apiCall('/marketplace/buy', {
+      method: 'POST',
+      body: JSON.stringify({ tokenId, amount }),
+    }),
+  sellToken: (tokenId: string, amount: number, price: number) => 
+    apiCall('/marketplace/sell', {
+      method: 'POST',
+      body: JSON.stringify({ tokenId, amount, price }),
+    }),
+
+  // Liquidity Pools
+  getLiquidityPools: () => apiCall('/liquidity/pools'),
+  addLiquidity: (poolId: string, tokenA: number, tokenB: number) => 
+    apiCall('/liquidity/add', {
+      method: 'POST',
+      body: JSON.stringify({ poolId, tokenA, tokenB }),
+    }),
+  withdrawLiquidity: (poolId: string, lpTokens: number) => 
+    apiCall('/liquidity/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({ poolId, lpTokens }),
+    }),
+
+  // Transactions
+  getMyTransactions: () => apiCall('/transactions/my-history'),
+
+  // Admin
+  getPendingAssets: () => apiCall('/admin/pending-assets'),
+  approveAsset: (assetId: string) => 
+    apiCall('/admin/approve-asset', {
+      method: 'POST',
+      body: JSON.stringify({ assetId }),
+    }),
+  rejectAsset: (assetId: string, reason: string) => 
+    apiCall('/admin/reject-asset', {
+      method: 'POST',
+      body: JSON.stringify({ assetId, reason }),
+    }),
+
+  // Legacy endpoints (keeping for backward compatibility)
+  getPools: () => apiCall('/api/pools'),
   getNFTs: () => apiCall('/api/nfts'),
+  getPortfolio: () => apiCall('/api/portfolio'),
+  getTransactions: () => apiCall('/api/transactions'),
+  
+  // Legacy NFT/Collateral endpoints (keeping for backward compatibility)
   mintNFT: (data: { name: string; description: string; imageUrl: string }) => 
     apiCall('/api/nfts/mint', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-
-  // Collateral
   lockCollateral: (nftId: string) => 
     apiCall('/api/collateral/lock', {
       method: 'POST',
@@ -63,20 +140,23 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ nftId }),
     }),
-
-  // Borrowing
+  
+  // Legacy Pool endpoints (keeping for backward compatibility)
+  depositToPool: (poolId: string, amount: number) => 
+    apiCall(`/api/pools/${poolId}/deposit`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+  withdrawFromPool: (poolId: string, amount: number) => 
+    apiCall(`/api/pools/${poolId}/withdraw`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+  
+  // Legacy Borrowing endpoints (keeping for backward compatibility)
   borrow: (collateralId: string, amount: number, currency: 'DAI' | 'USDC') => 
     apiCall('/api/borrow', {
       method: 'POST',
       body: JSON.stringify({ collateralId, amount, currency }),
     }),
-  repay: (loanId: string, amount: number) => 
-    apiCall('/api/repay', {
-      method: 'POST',
-      body: JSON.stringify({ loanId, amount }),
-    }),
-
-  // Portfolio & Transactions
-  getPortfolio: () => apiCall('/api/portfolio'),
-  getTransactions: () => apiCall('/api/transactions'),
 };
