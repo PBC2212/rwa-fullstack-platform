@@ -83,7 +83,7 @@ const Dashboard = () => {
       icon: <ShoppingCart className="w-5 h-5" />,
       action: () => navigate('/marketplace'),
       badge: null,
-      variant: 'outline' as const,
+      variant: portfolioSummary.kycStatus === 'approved' ? 'outline' as const : 'default' as const,
       buttonText: 'Get Started'
     },
     {
@@ -92,7 +92,7 @@ const Dashboard = () => {
       icon: <Droplets className="w-5 h-5" />,
       action: () => navigate('/pools'),
       badge: null,
-      variant: 'outline' as const,
+      variant: portfolioSummary.kycStatus === 'approved' ? 'outline' as const : 'default' as const,
       buttonText: 'Get Started'
     }
   ];
