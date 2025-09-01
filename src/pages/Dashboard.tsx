@@ -50,22 +50,32 @@ const Dashboard = () => {
     }
   };
 
+  const getKYCBadge = () => {
+    switch (portfolioSummary.kycStatus) {
+      case 'approved': return { text: 'Verified', variant: 'default' as const };
+      case 'rejected': return { text: 'Rejected', variant: 'destructive' as const };
+      default: return { text: 'Required', variant: 'secondary' as const };
+    }
+  };
+
   const quickActions = [
     {
       title: "Complete KYC",
       description: "Verify your identity to unlock all platform features",
       icon: <FileCheck className="w-5 h-5" />,
       action: () => navigate('/kyc'),
-      badge: portfolioSummary.kycStatus === 'pending' ? 'Required' : null,
-      variant: portfolioSummary.kycStatus === 'pending' ? 'default' : 'outline'
+      badge: getKYCBadge(),
+      variant: portfolioSummary.kycStatus === 'approved' ? 'outline' as const : 'default' as const,
+      buttonText: portfolioSummary.kycStatus === 'approved' ? 'View Status' : 'Complete Now'
     },
     {
       title: "Pledge Asset",
       description: "Submit your real-world assets for tokenization",
       icon: <Building2 className="w-5 h-5" />,
       action: () => navigate('/asset-pledging'),
-      badge: null,
-      variant: 'default'
+      badge: portfolioSummary.pendingAssets > 0 ? { text: `${portfolioSummary.pendingAssets} Pending`, variant: 'secondary' as const } : null,
+      variant: 'default' as const,
+      buttonText: 'Get Started'
     },
     {
       title: "Browse Marketplace",
@@ -73,15 +83,17 @@ const Dashboard = () => {
       icon: <ShoppingCart className="w-5 h-5" />,
       action: () => navigate('/marketplace'),
       badge: null,
-      variant: 'outline'
+      variant: 'outline' as const,
+      buttonText: 'Get Started'
     },
     {
       title: "Add Liquidity",
       description: "Provide liquidity to earn yield on your tokens",
       icon: <Droplets className="w-5 h-5" />,
-      action: () => navigate('/liquidity'),
+      action: () => navigate('/pools'),
       badge: null,
-      variant: 'outline'
+      variant: 'outline' as const,
+      buttonText: 'Get Started'
     }
   ];
 
@@ -186,10 +198,10 @@ const Dashboard = () => {
                         <CardTitle className="text-lg">{action.title}</CardTitle>
                         {action.badge && (
                           <Badge 
-                            variant={action.badge === 'Required' ? 'default' : 'secondary'} 
+                            variant={action.badge.variant} 
                             className="ml-2 text-xs"
                           >
-                            {action.badge}
+                            {action.badge.text}
                           </Badge>
                         )}
                       </div>
@@ -205,7 +217,7 @@ const Dashboard = () => {
                     variant={action.variant as any}
                     className="w-full"
                   >
-                    {action.badge === 'Required' ? 'Complete Now' : 'Get Started'}
+                    {action.buttonText}
                   </Button>
                 </CardContent>
               </Card>
