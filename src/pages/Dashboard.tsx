@@ -74,7 +74,7 @@ const Dashboard = () => {
       icon: <Building2 className="w-5 h-5" />,
       action: () => navigate('/asset-pledging'),
       badge: portfolioSummary.pendingAssets > 0 ? { text: `${portfolioSummary.pendingAssets} Pending`, variant: 'secondary' as const } : null,
-      variant: 'default' as const,
+      variant: portfolioSummary.kycStatus === 'approved' ? 'outline' as const : 'default' as const,
       buttonText: 'Get Started'
     },
     {
