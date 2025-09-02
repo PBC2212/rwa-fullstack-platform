@@ -1,55 +1,42 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Redirect authenticated users to dashboard
-        if (session?.user) {
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 0);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        navigate('/dashboard');
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Check if user is already authenticated
+    const token = localStorage.getItem('jwt_token');
+    if (token) {
+      // Verify token with backend
+      api.getMe()
+        .then(() => {
+          setAuthenticated(true);
+          navigate('/dashboard');
+        })
+        .catch(() => {
+          localStorage.removeItem('jwt_token');
+        });
+    }
   }, [navigate]);
 
   const validateForm = () => {
@@ -68,9 +55,16 @@ const AuthPage = () => {
       return false;
     }
 
-    if (!isLogin && password !== confirmPassword) {
-      setError('Passwords do not match');
-      return false;
+    if (!isLogin) {
+      if (!name || name.trim().length < 2) {
+        setError('Name must be at least 2 characters long');
+        return false;
+      }
+      
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return false;
+      }
     }
 
     return true;
@@ -86,52 +80,38 @@ const AuthPage = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            setError('Invalid email or password. Please check your credentials and try again.');
-          } else {
-            setError(error.message);
-          }
-          return;
-        }
-
+        const response = await api.login(email, password);
+        
         toast({
           title: "Login successful",
           description: "Welcome back! Redirecting to dashboard...",
         });
-      } else {
-        const redirectUrl = `${window.location.origin}/dashboard`;
         
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl
-          }
-        });
-
-        if (error) {
-          if (error.message.includes('User already registered')) {
-            setError('An account with this email already exists. Please try logging in instead.');
-          } else {
-            setError(error.message);
-          }
-          return;
-        }
-
+        navigate('/dashboard');
+      } else {
+        await api.register(email, password, name);
+        
+        // Auto-login after successful registration
+        await api.login(email, password);
+        
         toast({
-          title: "Account created successfully",
-          description: "Please check your email to verify your account.",
+          title: "Account created successfully", 
+          description: "Welcome! You are now logged in.",
         });
+        
+        navigate('/dashboard');
       }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-      console.error('Auth error:', err);
+    } catch (error: any) {
+      console.error('Auth error:', error);
+      const errorMessage = error.message || 'An unexpected error occurred';
+      
+      if (errorMessage.includes('Invalid credentials')) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else if (errorMessage.includes('already exists')) {
+        setError('An account with this email already exists. Please try logging in instead.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -176,6 +156,21 @@ const AuthPage = () => {
                 </Alert>
               )}
               
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -191,15 +186,31 @@ const AuthPage = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
 
               {!isLogin && (
@@ -236,6 +247,7 @@ const AuthPage = () => {
                   setEmail('');
                   setPassword('');
                   setConfirmPassword('');
+                  setName('');
                 }}
                 className="text-sm text-primary hover:underline"
                 disabled={loading}

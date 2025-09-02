@@ -1,21 +1,22 @@
-import { supabase } from '@/integrations/supabase/client';
+const API_BASE_URL = 'http://localhost:5000/api';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-api.com' 
-  : 'http://localhost:3001';
+// JWT Token management
+const getToken = () => localStorage.getItem('jwt_token');
+const setToken = (token: string) => localStorage.setItem('jwt_token', token);
+const removeToken = () => localStorage.removeItem('jwt_token');
 
 // Helper to get auth headers
-const getAuthHeaders = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+const getAuthHeaders = () => {
+  const token = getToken();
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session?.access_token}`,
+    ...(token && { 'Authorization': `Bearer ${token}` }),
   };
 };
 
 // API call wrapper
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
@@ -32,27 +33,46 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 
 export const api = {
   // Authentication
-  login: (email: string, password: string) => 
-    apiCall('/auth/login', {
+  login: async (email: string, password: string) => {
+    const response = await apiCall('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    }),
-  register: (email: string, password: string) => 
+    });
+    if (response.token) {
+      setToken(response.token);
+    }
+    return response;
+  },
+  register: (email: string, password: string, name: string) => 
     apiCall('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, name }),
     }),
+  getMe: () => apiCall('/auth/me'),
+  logout: () => {
+    removeToken();
+  },
 
   // KYC
+  submitKYC: (documents: FormData) => 
+    apiCall('/kyc/submit', {
+      method: 'POST',
+      body: documents,
+    }),
   uploadKYC: (documents: FormData) => 
-    apiCall('/kyc/upload', {
+    apiCall('/kyc/submit', {
       method: 'POST',
       body: documents,
     }),
   getKYCStatus: () => apiCall('/kyc/status'),
 
-  // Asset Pledging
+  // Assets & Tokenization
   pledgeAsset: (data: { 
+    type: string; 
+    value: number; 
+    description: string; 
+    docs: string[] 
+  } | {
     assetType: string; 
     estimatedValue: number; 
     description: string; 
@@ -62,101 +82,96 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  getPledgedAssets: () => apiCall('/assets/my-pledged'),
+  getMyAssets: () => apiCall('/assets/mine'),
+  getPledgedAssets: () => apiCall('/assets/mine'),
+  getMyTokens: () => apiCall('/assets/mine'),
+  mintToken: (assetId: string, data?: any) => 
+    apiCall(`/assets/${assetId}/mint`, {
+      method: 'POST',
+      ...(data && { body: JSON.stringify(data) }),
+    }),
+  getMarketplace: () => apiCall('/assets/marketplace'),
+  getMarketplaceListings: () => apiCall('/assets/marketplace'),
 
-  // Tokens
-  getMyTokens: () => apiCall('/tokens/my-tokens'),
-  mintToken: (assetId: string, data: { 
-    tokenSymbol: string; 
-    totalSupply: number; 
-    fractional: boolean 
-  }) => 
-    apiCall(`/tokens/mint/${assetId}`, {
+  // Marketplace & Liquidity
+  buyToken: (tokenId: string, amount?: number) => 
+    apiCall(`/marketplace/buy/${tokenId}`, {
+      method: 'POST',
+      ...(amount && { body: JSON.stringify({ amount }) }),
+    }),
+  sellToken: (tokenId: string, amount?: number, price?: number) => 
+    apiCall(`/marketplace/sell/${tokenId}`, {
+      method: 'POST',
+      ...(amount && price && { body: JSON.stringify({ amount, price }) }),
+    }),
+  provideLiquidity: (data: any) => 
+    apiCall('/liquidity/provide', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-
-  // Marketplace
-  getMarketplaceListings: () => apiCall('/marketplace/listings'),
-  buyToken: (tokenId: string, amount: number) => 
-    apiCall('/marketplace/buy', {
-      method: 'POST',
-      body: JSON.stringify({ tokenId, amount }),
-    }),
-  sellToken: (tokenId: string, amount: number, price: number) => 
-    apiCall('/marketplace/sell', {
-      method: 'POST',
-      body: JSON.stringify({ tokenId, amount, price }),
-    }),
-
-  // Liquidity Pools
-  getLiquidityPools: () => apiCall('/liquidity/pools'),
-  addLiquidity: (poolId: string, tokenA: number, tokenB: number) => 
-    apiCall('/liquidity/add', {
-      method: 'POST',
-      body: JSON.stringify({ poolId, tokenA, tokenB }),
-    }),
-  withdrawLiquidity: (poolId: string, lpTokens: number) => 
+  withdrawLiquidity: () => 
     apiCall('/liquidity/withdraw', {
       method: 'POST',
-      body: JSON.stringify({ poolId, lpTokens }),
     }),
+  getLiquidityPools: () => apiCall('/liquidity/pools'),
 
-  // Transactions
-  getMyTransactions: () => apiCall('/transactions/my-history'),
-
-  // Admin
-  getPendingAssets: () => apiCall('/admin/pending-assets'),
-  approveAsset: (assetId: string) => 
-    apiCall('/admin/approve-asset', {
-      method: 'POST',
-      body: JSON.stringify({ assetId }),
-    }),
-  rejectAsset: (assetId: string, reason: string) => 
-    apiCall('/admin/reject-asset', {
-      method: 'POST',
-      body: JSON.stringify({ assetId, reason }),
-    }),
+  // Activity & Health
+  getMyActivity: () => apiCall('/activity/mine'),
+  getHealth: () => apiCall('/health'),
 
   // Legacy endpoints (keeping for backward compatibility)
-  getPools: () => apiCall('/api/pools'),
-  getNFTs: () => apiCall('/api/nfts'),
-  getPortfolio: () => apiCall('/api/portfolio'),
-  getTransactions: () => apiCall('/api/transactions'),
+  getPools: () => apiCall('/liquidity/pools'),
+  getNFTs: () => apiCall('/assets/mine'),
+  getPortfolio: () => apiCall('/assets/mine'),
+  getTransactions: () => apiCall('/activity/mine'),
+  getMyTransactions: () => apiCall('/activity/mine'),
   
   // Legacy NFT/Collateral endpoints (keeping for backward compatibility)
   mintNFT: (data: { name: string; description: string; imageUrl: string }) => 
-    apiCall('/api/nfts/mint', {
+    apiCall('/assets/pledge', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   lockCollateral: (nftId: string) => 
-    apiCall('/api/collateral/lock', {
+    apiCall(`/assets/${nftId}/mint`, {
       method: 'POST',
       body: JSON.stringify({ nftId }),
     }),
   unlockCollateral: (nftId: string) => 
-    apiCall('/api/collateral/unlock', {
+    apiCall(`/marketplace/sell/${nftId}`, {
       method: 'POST',
       body: JSON.stringify({ nftId }),
     }),
   
   // Legacy Pool endpoints (keeping for backward compatibility)
   depositToPool: (poolId: string, amount: number) => 
-    apiCall(`/api/pools/${poolId}/deposit`, {
+    apiCall('/liquidity/provide', {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ poolId, amount }),
     }),
   withdrawFromPool: (poolId: string, amount: number) => 
-    apiCall(`/api/pools/${poolId}/withdraw`, {
+    apiCall('/liquidity/withdraw', {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ poolId, amount }),
     }),
   
   // Legacy Borrowing endpoints (keeping for backward compatibility)
   borrow: (collateralId: string, amount: number, currency: 'DAI' | 'USDC') => 
-    apiCall('/api/borrow', {
+    apiCall(`/marketplace/buy/${collateralId}`, {
       method: 'POST',
       body: JSON.stringify({ collateralId, amount, currency }),
+    }),
+
+  // Admin endpoints
+  getPendingAssets: () => apiCall('/assets/mine'),
+  approveAsset: (assetId: string) => 
+    apiCall(`/assets/${assetId}/mint`, {
+      method: 'POST',
+      body: JSON.stringify({ assetId }),
+    }),
+  rejectAsset: (assetId: string, reason: string) => 
+    apiCall(`/marketplace/sell/${assetId}`, {
+      method: 'POST',  
+      body: JSON.stringify({ assetId, reason }),
     }),
 };

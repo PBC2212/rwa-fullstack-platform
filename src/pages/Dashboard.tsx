@@ -14,6 +14,7 @@ const Dashboard = () => {
     pendingAssets: 0,
     kycStatus: 'pending'
   });
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,16 +26,18 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      // Load dashboard summary data
-      const [tokens, pledgedAssets, kycStatus] = await Promise.allSettled([
-        api.getMyTokens(),
-        api.getPledgedAssets(),
-        api.getKYCStatus()
+      // Load dashboard summary data and recent activity
+      const [tokens, pledgedAssets, kycStatus, activity] = await Promise.allSettled([
+        api.getMyAssets(),
+        api.getMyAssets(),
+        api.getKYCStatus(),
+        api.getMyActivity()
       ]);
 
       const tokensData = tokens.status === 'fulfilled' ? tokens.value : [];
       const assetsData = pledgedAssets.status === 'fulfilled' ? pledgedAssets.value : [];
       const kyc = kycStatus.status === 'fulfilled' ? kycStatus.value : { status: 'pending' };
+      const activityData = activity.status === 'fulfilled' ? activity.value : [];
 
       setPortfolioSummary({
         totalValue: tokensData.reduce((sum: number, token: any) => sum + (token.currentValue * token.balance), 0),
@@ -42,6 +45,8 @@ const Dashboard = () => {
         pendingAssets: assetsData.filter((asset: any) => asset.status === 'under_review').length,
         kycStatus: kyc.status
       });
+
+      setRecentActivity(activityData.slice(0, 5)); // Show latest 5 activities
     } catch (error: any) {
       console.error('Error loading dashboard data:', error);
       // Don't show error toast as some endpoints might not be available yet
@@ -225,18 +230,44 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity Placeholder */}
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Your latest platform interactions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No recent activity</p>
-              <p className="text-sm">Start by pledging your first asset or browsing the marketplace</p>
-            </div>
+            {recentActivity.length > 0 ? (
+              <div className="space-y-4">
+                {recentActivity.map((activity: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <TrendingUp className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{activity.type || 'Activity'}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.description || 'Recent activity'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {activity.timestamp ? new Date(activity.timestamp).toLocaleDateString() : 'Recent'}
+                    </div>
+                  </div>
+                ))}
+                <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/transactions')}>
+                  View All Activity
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No recent activity</p>
+                <p className="text-sm">Start by pledging your first asset or browsing the marketplace</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

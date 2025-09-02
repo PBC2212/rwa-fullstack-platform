@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut, Sun, Moon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -11,56 +9,49 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
+import { api } from '@/lib/api';
 
 const DashboardLayout = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session?.user) {
-          navigate('/auth');
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (!session?.user) {
-        navigate('/auth');
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, [navigate]);
+
+  const checkAuth = async () => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      // Verify token with backend
+      const userData = await api.getMe();
+      setUser(userData);
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('jwt_token');
+      navigate('/auth');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      api.logout();
       
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account.",
       });
       
-      navigate('/');
+      navigate('/auth');
     } catch (error) {
       console.error('Logout error:', error);
       toast({
@@ -107,7 +98,7 @@ const DashboardLayout = () => {
                 </Button>
                 
                 <div className="text-sm text-muted-foreground">
-                  {user.email}
+                  {user?.email || 'User'}
                 </div>
                 
                 <Button variant="outline" size="sm" onClick={handleLogout}>
