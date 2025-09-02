@@ -112,7 +112,7 @@ const Dashboard = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Your RWA tokenization platform overview
+            Your IME Capital Tokenization LLC overview
           </p>
         </div>
 
