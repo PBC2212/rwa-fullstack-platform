@@ -94,7 +94,7 @@ const DashboardLayout = () => {
             <div className="flex items-center justify-between h-full px-6">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
-                <h1 className="text-xl font-semibold">IME Capital Tokenization LLC</h1>
+                <h1 className="text-xl font-semibold text-foreground">IME Capital Tokenization</h1>
               </div>
               
               <div className="flex items-center gap-4">
