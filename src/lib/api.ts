@@ -1,9 +1,43 @@
 const API_BASE_URL = 'http://localhost:5000/api';
+const USE_MOCK_API = true; // Set to false when your backend is ready
 
 // JWT Token management
 const getToken = () => localStorage.getItem('jwt_token');
 const setToken = (token: string) => localStorage.setItem('jwt_token', token);
 const removeToken = () => localStorage.removeItem('jwt_token');
+
+// Mock API responses for development
+const mockAPI = {
+  login: async (email: string, password: string) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock successful login
+    const mockToken = 'mock-jwt-token-' + Date.now();
+    setToken(mockToken);
+    return {
+      token: mockToken,
+      user: { email, name: 'Test User', id: '1' }
+    };
+  },
+  register: async (email: string, password: string, name: string) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const mockToken = 'mock-jwt-token-' + Date.now();
+    setToken(mockToken);
+    return {
+      token: mockToken,
+      user: { email, name, id: '1' }
+    };
+  },
+  getMe: async () => ({
+    email: 'test@example.com',
+    name: 'Test User', 
+    id: '1'
+  }),
+  getKYCStatus: async () => ({ status: 'pending' }),
+  getMyAssets: async () => [],
+  getMyActivity: async () => []
+};
 
 // Helper to get auth headers
 const getAuthHeaders = () => {
@@ -34,6 +68,10 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 export const api = {
   // Authentication
   login: async (email: string, password: string) => {
+    if (USE_MOCK_API) {
+      return mockAPI.login(email, password);
+    }
+    
     const response = await apiCall('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -43,12 +81,22 @@ export const api = {
     }
     return response;
   },
-  register: (email: string, password: string, name: string) => 
-    apiCall('/auth/register', {
+  register: async (email: string, password: string, name: string) => {
+    if (USE_MOCK_API) {
+      return mockAPI.register(email, password, name);
+    }
+    
+    return apiCall('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
-    }),
-  getMe: () => apiCall('/auth/me'),
+    });
+  },
+  getMe: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getMe();
+    }
+    return apiCall('/auth/me');
+  },
   logout: () => {
     removeToken();
   },
@@ -64,9 +112,14 @@ export const api = {
       method: 'POST',
       body: documents,
     }),
-  getKYCStatus: () => apiCall('/kyc/status'),
+  getKYCStatus: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getKYCStatus();
+    }
+    return apiCall('/kyc/status');
+  },
 
-  // Assets & Tokenization
+  // Assets & Tokenization  
   pledgeAsset: (data: { 
     type: string; 
     value: number; 
@@ -77,14 +130,33 @@ export const api = {
     estimatedValue: number; 
     description: string; 
     documents: string[] 
-  }) => 
-    apiCall('/assets/pledge', {
+  }) => {
+    if (USE_MOCK_API) {
+      return Promise.resolve({ success: true, id: 'mock-asset-' + Date.now() });
+    }
+    return apiCall('/assets/pledge', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
-  getMyAssets: () => apiCall('/assets/mine'),
-  getPledgedAssets: () => apiCall('/assets/mine'),
-  getMyTokens: () => apiCall('/assets/mine'),
+    });
+  },
+  getMyAssets: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getMyAssets();
+    }
+    return apiCall('/assets/mine');
+  },
+  getPledgedAssets: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getMyAssets();
+    }
+    return apiCall('/assets/mine');
+  },
+  getMyTokens: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getMyAssets();
+    }
+    return apiCall('/assets/mine');
+  },
   mintToken: (assetId: string, data?: any) => 
     apiCall(`/assets/${assetId}/mint`, {
       method: 'POST',
@@ -116,8 +188,18 @@ export const api = {
   getLiquidityPools: () => apiCall('/liquidity/pools'),
 
   // Activity & Health
-  getMyActivity: () => apiCall('/activity/mine'),
-  getHealth: () => apiCall('/health'),
+  getMyActivity: () => {
+    if (USE_MOCK_API) {
+      return mockAPI.getMyActivity();
+    }
+    return apiCall('/activity/mine');
+  },
+  getHealth: () => {
+    if (USE_MOCK_API) {
+      return Promise.resolve({ status: 'ok' });
+    }
+    return apiCall('/health');
+  },
 
   // Legacy endpoints (keeping for backward compatibility)
   getPools: () => apiCall('/liquidity/pools'),
