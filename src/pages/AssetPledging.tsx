@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Building, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Plus, Building, TrendingUp, Clock, CheckCircle, XCircle, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import MintTokenDialog from '@/components/MintTokenDialog';
 
 interface PledgedAsset {
   id: string;
@@ -26,6 +27,8 @@ const AssetPledging = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [mintDialogOpen, setMintDialogOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<PledgedAsset | null>(null);
   const { toast } = useToast();
 
   // Form state
@@ -141,6 +144,15 @@ const AssetPledging = () => {
       default:
         return <Clock className="w-5 h-5 text-amber-600" />;
     }
+  };
+
+  const handleMintToken = (asset: PledgedAsset) => {
+    setSelectedAsset(asset);
+    setMintDialogOpen(true);
+  };
+
+  const handleMintSuccess = () => {
+    loadPledgedAssets(); // Refresh the asset list
   };
 
   if (loading) {
@@ -295,12 +307,50 @@ const AssetPledging = () => {
                         <p>{asset.rejectionReason}</p>
                       </div>
                     )}
+
+                    {asset.status === 'approved' && (
+                      <div className="pt-2 border-t">
+                        <Button 
+                          onClick={() => handleMintToken(asset)}
+                          className="w-full"
+                          size="sm"
+                        >
+                          <Coins className="w-4 h-4 mr-2" />
+                          Mint Tokens
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-1 text-center">
+                          Create blockchain tokens for this asset
+                        </p>
+                      </div>
+                    )}
+
+                    {asset.status === 'tokenized' && (
+                      <div className="pt-2 border-t">
+                        <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
+                          <Coins className="w-4 h-4" />
+                          <span>Tokens Available</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 text-center">
+                          This asset has been tokenized successfully
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
             </div>
           )}
         </div>
+
+        {/* Mint Token Dialog */}
+        {selectedAsset && (
+          <MintTokenDialog
+            open={mintDialogOpen}
+            onOpenChange={setMintDialogOpen}
+            asset={selectedAsset}
+            onSuccess={handleMintSuccess}
+          />
+        )}
       </div>
     </div>
   );

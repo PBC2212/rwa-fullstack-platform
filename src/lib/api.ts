@@ -1,5 +1,5 @@
 const API_BASE_URL = 'http://localhost:5000/api';
-const USE_MOCK_API = true; // Set to false when your backend is ready
+const USE_MOCK_API = false; // Set to false when your backend is ready
 
 // JWT Token management
 const getToken = () => localStorage.getItem('jwt_token');
@@ -157,11 +157,19 @@ export const api = {
     }
     return apiCall('/assets/mine');
   },
-  mintToken: (assetId: string, data?: any) => 
-    apiCall(`/assets/${assetId}/mint`, {
+  mintToken: (assetId: string, data?: any) => {
+    if (USE_MOCK_API) {
+      return Promise.resolve({ 
+        success: true, 
+        tokenId: 'mock-token-' + Date.now(),
+        message: 'Token minted successfully'
+      });
+    }
+    return apiCall(`/assets/${assetId}/mint`, {
       method: 'POST',
       ...(data && { body: JSON.stringify(data) }),
-    }),
+    });
+  },
   getMarketplace: () => apiCall('/assets/marketplace'),
   getMarketplaceListings: () => apiCall('/assets/marketplace'),
 
