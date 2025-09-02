@@ -62,7 +62,7 @@ export function AppSidebar() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-sm">RWA Platform</span>
+              <span className="font-semibold text-sm">IME Capital Tokenization LLC</span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center mx-auto">
