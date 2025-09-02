@@ -47,21 +47,21 @@ const App = () => (
             <Route path="/start-tokenization" element={<StartTokenization />} />
             
             {/* Dashboard Layout Routes */}
-            <Route path="/" element={<DashboardLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="kyc" element={<KYC />} />
-              <Route path="asset-pledging" element={<AssetPledging />} />
-              <Route path="my-tokens" element={<MyTokens />} />
-              <Route path="marketplace" element={<Marketplace />} />
-              <Route path="liquidity" element={<Pools />} />
-              <Route path="transactions" element={<Transactions />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="admin" element={<AdminPanel />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/kyc" element={<KYC />} />
+              <Route path="/asset-pledging" element={<AssetPledging />} />
+              <Route path="/my-tokens" element={<MyTokens />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/liquidity" element={<Pools />} />
+              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<AdminPanel />} />
               
               {/* Legacy routes for backward compatibility */}
-              <Route path="pools" element={<Pools />} />
-              <Route path="nfts" element={<NFTs />} />
-              <Route path="portfolio" element={<Portfolio />} />
+              <Route path="/pools" element={<Pools />} />
+              <Route path="/nfts" element={<NFTs />} />
+              <Route path="/portfolio" element={<Portfolio />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
