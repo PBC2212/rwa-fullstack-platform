@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://fireblocks-rwa-ime-project.onrender.com/api';
 const USE_MOCK_API = false; // Set to false when your backend is ready
 
 // JWT Token management
