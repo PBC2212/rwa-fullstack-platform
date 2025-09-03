@@ -95,7 +95,7 @@ const Dashboard = () => {
       title: "Add Liquidity",
       description: "Provide liquidity to earn yield on your tokens",
       icon: <Droplets className="w-5 h-5" />,
-      action: () => navigate('/pools'),
+      action: () => navigate('/liquidity'),
       badge: null,
       variant: portfolioSummary.kycStatus === 'approved' ? 'outline' as const : 'default' as const,
       buttonText: 'Get Started'
