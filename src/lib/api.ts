@@ -139,23 +139,26 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
-  getMyAssets: () => {
+  getMyAssets: async () => {
     if (USE_MOCK_API) {
       return mockAPI.getMyAssets();
     }
-    return apiCall('/assets/mine');
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
   },
-  getPledgedAssets: () => {
+  getPledgedAssets: async () => {
     if (USE_MOCK_API) {
       return mockAPI.getMyAssets();
     }
-    return apiCall('/assets/mine');
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
   },
-  getMyTokens: () => {
+  getMyTokens: async () => {
     if (USE_MOCK_API) {
       return mockAPI.getMyAssets();
     }
-    return apiCall('/assets/mine');
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
   },
   mintToken: (assetId: string, data?: any) => {
     if (USE_MOCK_API) {
@@ -170,8 +173,14 @@ export const api = {
       ...(data && { body: JSON.stringify(data) }),
     });
   },
-  getMarketplace: () => apiCall('/assets/marketplace'),
-  getMarketplaceListings: () => apiCall('/assets/marketplace'),
+  getMarketplace: async () => {
+    const response = await apiCall('/assets/marketplace');
+    return response.assets || [];
+  },
+  getMarketplaceListings: async () => {
+    const response = await apiCall('/assets/marketplace');
+    return response.assets || [];
+  },
 
   // Marketplace & Liquidity
   buyToken: (tokenId: string, amount?: number) => 
@@ -193,14 +202,18 @@ export const api = {
     apiCall('/liquidity/withdraw', {
       method: 'POST',
     }),
-  getLiquidityPools: () => apiCall('/liquidity/pools'),
+  getLiquidityPools: async () => {
+    const response = await apiCall('/liquidity/pools');
+    return response.pools || [];
+  },
 
   // Activity & Health
-  getMyActivity: () => {
+  getMyActivity: async () => {
     if (USE_MOCK_API) {
       return mockAPI.getMyActivity();
     }
-    return apiCall('/activity/mine');
+    const response = await apiCall('/activity/mine');
+    return response.activities || [];
   },
   getHealth: () => {
     if (USE_MOCK_API) {
@@ -210,11 +223,26 @@ export const api = {
   },
 
   // Legacy endpoints (keeping for backward compatibility)
-  getPools: () => apiCall('/liquidity/pools'),
-  getNFTs: () => apiCall('/assets/mine'),
-  getPortfolio: () => apiCall('/assets/mine'),
-  getTransactions: () => apiCall('/activity/mine'),
-  getMyTransactions: () => apiCall('/activity/mine'),
+  getPools: async () => {
+    const response = await apiCall('/liquidity/pools');
+    return response.pools || [];
+  },
+  getNFTs: async () => {
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
+  },
+  getPortfolio: async () => {
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
+  },
+  getTransactions: async () => {
+    const response = await apiCall('/activity/mine');
+    return response.activities || [];
+  },
+  getMyTransactions: async () => {
+    const response = await apiCall('/activity/mine');
+    return response.activities || [];
+  },
   
   // Legacy NFT/Collateral endpoints (keeping for backward compatibility)
   mintNFT: (data: { name: string; description: string; imageUrl: string }) => 
@@ -253,7 +281,10 @@ export const api = {
     }),
 
   // Admin endpoints
-  getPendingAssets: () => apiCall('/assets/mine'),
+  getPendingAssets: async () => {
+    const response = await apiCall('/assets/mine');
+    return response.assets || [];
+  },
   approveAsset: (assetId: string) => 
     apiCall(`/assets/${assetId}/mint`, {
       method: 'POST',
