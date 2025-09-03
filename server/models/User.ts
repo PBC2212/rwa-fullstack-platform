@@ -1,48 +1,63 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   name: string;
   email: string;
-  passwordHash: string;
-  kycStatus: "pending" | "approved" | "rejected";
+  password: string;
+  kycStatus: 'pending' | 'approved' | 'rejected';
+  kycDocuments?: string[];
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema: Schema = new Schema(
-  {
-    name: { 
-      type: String, 
-      required: true,
-      trim: true,
-      maxlength: 100
-    },
-    email: { 
-      type: String, 
-      required: true, 
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
-    },
-    passwordHash: { 
-      type: String, 
-      required: true,
-      minlength: 6
-    },
-    kycStatus: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
-    },
+const UserSchema: Schema = new Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
   },
-  { 
-    timestamps: true
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6
+  },
+  kycStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  kycDocuments: [{
+    type: String
+  }]
+}, {
+  timestamps: true
+});
+
+// Hash password before saving
+UserSchema.pre<IUser>('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error: any) {
+    next(error);
   }
-);
+});
 
-// Add indexes for better query performance
-// Note: email already has unique: true, so we don't need a separate index
-UserSchema.index({ kycStatus: 1 });
+// Compare password method
+UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-export default mongoose.model<IUser>("User", UserSchema);
+export const User = mongoose.model<IUser>('User', UserSchema);
