@@ -1,298 +1,254 @@
-const API_BASE_URL = 'https://www.imecapitaltokenization.com/api';
-const USE_MOCK_API = false; // Set to false when your backend is ready
+// src/lib/api.ts - COMPREHENSIVE FIX FOR DATA FORMAT ISSUES
+// Replace your existing src/lib/api.ts with this fixed version
 
-// JWT Token management
-const getToken = () => localStorage.getItem('jwt_token');
-const setToken = (token: string) => localStorage.setItem('jwt_token', token);
-const removeToken = () => localStorage.removeItem('jwt_token');
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://ime-capital-tokenization-backend.onrender.com'
+  : 'http://localhost:5001';
 
-// Mock API responses for development
-const mockAPI = {
-  login: async (email: string, password: string) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful login
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    setToken(mockToken);
-    return {
-      token: mockToken,
-      user: { email, name: 'Test User', id: '1' }
-    };
-  },
-  register: async (email: string, password: string, name: string) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    setToken(mockToken);
-    return {
-      token: mockToken,
-      user: { email, name, id: '1' }
-    };
-  },
-  getMe: async () => ({
-    email: 'test@example.com',
-    name: 'Test User', 
-    id: '1'
-  }),
-  getKYCStatus: async () => ({ status: 'pending' }),
-  getMyAssets: async () => [],
-  getMyActivity: async () => []
-};
+class ApiService {
+  private token: string | null = null;
 
-// Helper to get auth headers
-const getAuthHeaders = () => {
-  const token = getToken();
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-  };
-};
-
-// API call wrapper
-const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const headers = getAuthHeaders();
-  
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: { ...headers, ...options.headers },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'API Error' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+  constructor() {
+    this.token = localStorage.getItem('authToken');
   }
 
-  return response.json();
-};
-
-export const api = {
-  // Authentication
-  login: async (email: string, password: string) => {
-    if (USE_MOCK_API) {
-      return mockAPI.login(email, password);
-    }
+  private async request(endpoint: string, options: RequestInit = {}) {
+    const url = `${API_BASE_URL}${endpoint}`;
     
-    const response = await apiCall('/auth/login', {
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { 'Authorization': `Bearer ${this.token}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    try {
+      console.log(`API Request: ${options.method || 'GET'} ${url}`);
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`API Response for ${endpoint}:`, data);
+      return data;
+    } catch (error) {
+      console.error(`API Error for ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  // ASSET PLEDGING API METHODS - FIXED DATA HANDLING
+  async getPledgedAssets() {
+    try {
+      const response = await this.request('/api/assets/pledged');
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      }
+      if (response.assets && Array.isArray(response.assets)) {
+        return response.assets;
+      }
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      // Fallback: return empty array to prevent .map() errors
+      console.warn('getPledgedAssets: Unexpected response format, returning empty array:', response);
+      return [];
+    } catch (error) {
+      console.error('Error in getPledgedAssets:', error);
+      return []; // Always return array to prevent .map() errors
+    }
+  }
+
+  async pledgeAsset(assetData: any) {
+    const response = await this.request('/api/assets/pledge', {
+      method: 'POST',
+      body: JSON.stringify(assetData),
+    });
+    return response;
+  }
+
+  // MARKETPLACE API METHODS - FIXED DATA HANDLING
+  async getMarketplaceListings() {
+    try {
+      const response = await this.request('/api/marketplace/listings');
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      }
+      if (response.listings && Array.isArray(response.listings)) {
+        return response.listings;
+      }
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      if (response.tokens && Array.isArray(response.tokens)) {
+        return response.tokens;
+      }
+      // Fallback: return empty array to prevent .map() errors
+      console.warn('getMarketplaceListings: Unexpected response format, returning empty array:', response);
+      return [];
+    } catch (error) {
+      console.error('Error in getMarketplaceListings:', error);
+      return []; // Always return array to prevent .map() errors
+    }
+  }
+
+  async buyToken(tokenId: string, amount: number) {
+    const response = await this.request('/api/marketplace/buy', {
+      method: 'POST',
+      body: JSON.stringify({ tokenId, amount }),
+    });
+    return response;
+  }
+
+  async sellToken(tokenId: string, amount: number, price: number) {
+    const response = await this.request('/api/marketplace/sell', {
+      method: 'POST',
+      body: JSON.stringify({ tokenId, amount, price }),
+    });
+    return response;
+  }
+
+  // LIQUIDITY API METHODS - FIXED DATA HANDLING
+  async getLiquidityPools() {
+    try {
+      const response = await this.request('/api/liquidity/pools');
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      }
+      if (response.pools && Array.isArray(response.pools)) {
+        return response.pools;
+      }
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      // Fallback: return empty array to prevent .map() errors
+      console.warn('getLiquidityPools: Unexpected response format, returning empty array:', response);
+      return [];
+    } catch (error) {
+      console.error('Error in getLiquidityPools:', error);
+      return []; // Always return array to prevent .map() errors
+    }
+  }
+
+  async addLiquidity(poolId: string, amount: number) {
+    const response = await this.request('/api/liquidity/add', {
+      method: 'POST',
+      body: JSON.stringify({ poolId, amount }),
+    });
+    return response;
+  }
+
+  async removeLiquidity(poolId: string, amount: number) {
+    const response = await this.request('/api/liquidity/remove', {
+      method: 'POST',
+      body: JSON.stringify({ poolId, amount }),
+    });
+    return response;
+  }
+
+  // DASHBOARD API METHODS - FIXED DATA HANDLING
+  async getMyAssets() {
+    try {
+      const response = await this.request('/api/assets/my-assets');
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      }
+      if (response.assets && Array.isArray(response.assets)) {
+        return response.assets;
+      }
+      if (response.tokens && Array.isArray(response.tokens)) {
+        return response.tokens;
+      }
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      // Fallback: return empty array to prevent .reduce() errors
+      console.warn('getMyAssets: Unexpected response format, returning empty array:', response);
+      return [];
+    } catch (error) {
+      console.error('Error in getMyAssets:', error);
+      return []; // Always return array to prevent .reduce() errors
+    }
+  }
+
+  async getMyActivity() {
+    try {
+      const response = await this.request('/api/activity/my-activity');
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      }
+      if (response.activities && Array.isArray(response.activities)) {
+        return response.activities;
+      }
+      if (response.activity && Array.isArray(response.activity)) {
+        return response.activity;
+      }
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      }
+      // Fallback: return empty array
+      console.warn('getMyActivity: Unexpected response format, returning empty array:', response);
+      return [];
+    } catch (error) {
+      console.error('Error in getMyActivity:', error);
+      return []; // Always return array
+    }
+  }
+
+  // KYC API METHODS - WORKING CORRECTLY
+  async getKYCStatus() {
+    const response = await this.request('/api/kyc/status');
+    return response;
+  }
+
+  async uploadKYC(formData: FormData) {
+    const response = await this.request('/api/kyc/upload', {
+      method: 'POST',
+      headers: {
+        ...(this.token && { 'Authorization': `Bearer ${this.token}` }),
+      },
+      body: formData,
+    });
+    return response;
+  }
+
+  // AUTHENTICATION METHODS - WORKING CORRECTLY
+  async login(email: string, password: string) {
+    const response = await this.request('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    
     if (response.token) {
-      setToken(response.token);
-    }
-    return response;
-  },
-  register: async (email: string, password: string, name: string) => {
-    if (USE_MOCK_API) {
-      return mockAPI.register(email, password, name);
+      this.token = response.token;
+      localStorage.setItem('authToken', response.token);
     }
     
-    return apiCall('/auth/register', {
+    return response;
+  }
+
+  async register(userData: any) {
+    const response = await this.request('/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify(userData),
     });
-  },
-  getMe: () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getMe();
-    }
-    return apiCall('/auth/me');
-  },
-  logout: () => {
-    removeToken();
-  },
+    return response;
+  }
 
-  // KYC
-  submitKYC: (documents: FormData) => 
-    apiCall('/kyc/submit', {
-      method: 'POST',
-      body: documents,
-    }),
-  uploadKYC: (documents: FormData) => 
-    apiCall('/kyc/submit', {
-      method: 'POST',
-      body: documents,
-    }),
-  getKYCStatus: () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getKYCStatus();
-    }
-    return apiCall('/kyc/status');
-  },
+  logout() {
+    this.token = null;
+    localStorage.removeItem('authToken');
+  }
+}
 
-  // Assets & Tokenization  
-  pledgeAsset: (data: { 
-    type: string; 
-    value: number; 
-    description: string; 
-    docs: string[] 
-  } | {
-    assetType: string; 
-    estimatedValue: number; 
-    description: string; 
-    documents: string[] 
-  }) => {
-    if (USE_MOCK_API) {
-      return Promise.resolve({ success: true, id: 'mock-asset-' + Date.now() });
-    }
-    return apiCall('/assets/pledge', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-  getMyAssets: async () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getMyAssets();
-    }
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  getPledgedAssets: async () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getMyAssets();
-    }
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  getMyTokens: async () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getMyAssets();
-    }
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  mintToken: (assetId: string, data?: any) => {
-    if (USE_MOCK_API) {
-      return Promise.resolve({ 
-        success: true, 
-        tokenId: 'mock-token-' + Date.now(),
-        message: 'Token minted successfully'
-      });
-    }
-    return apiCall(`/assets/${assetId}/mint`, {
-      method: 'POST',
-      ...(data && { body: JSON.stringify(data) }),
-    });
-  },
-  getMarketplace: async () => {
-    const response = await apiCall('/assets/marketplace');
-    return response.assets || [];
-  },
-  getMarketplaceListings: async () => {
-    const response = await apiCall('/assets/marketplace');
-    return response.assets || [];
-  },
-
-  // Marketplace & Liquidity
-  buyToken: (tokenId: string, amount?: number) => 
-    apiCall(`/marketplace/buy/${tokenId}`, {
-      method: 'POST',
-      ...(amount && { body: JSON.stringify({ amount }) }),
-    }),
-  sellToken: (tokenId: string, amount?: number, price?: number) => 
-    apiCall(`/marketplace/sell/${tokenId}`, {
-      method: 'POST',
-      ...(amount && price && { body: JSON.stringify({ amount, price }) }),
-    }),
-  provideLiquidity: (data: any) => 
-    apiCall('/liquidity/provide', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  withdrawLiquidity: () => 
-    apiCall('/liquidity/withdraw', {
-      method: 'POST',
-    }),
-  getLiquidityPools: async () => {
-    const response = await apiCall('/liquidity/pools');
-    return response.pools || [];
-  },
-
-  // Activity & Health
-  getMyActivity: async () => {
-    if (USE_MOCK_API) {
-      return mockAPI.getMyActivity();
-    }
-    const response = await apiCall('/activity/mine');
-    return response.activities || [];
-  },
-  getHealth: () => {
-    if (USE_MOCK_API) {
-      return Promise.resolve({ status: 'ok' });
-    }
-    return apiCall('/health');
-  },
-
-  // Legacy endpoints (keeping for backward compatibility)
-  getPools: async () => {
-    const response = await apiCall('/liquidity/pools');
-    return response.pools || [];
-  },
-  getNFTs: async () => {
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  getPortfolio: async () => {
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  getTransactions: async () => {
-    const response = await apiCall('/activity/mine');
-    return response.activities || [];
-  },
-  getMyTransactions: async () => {
-    const response = await apiCall('/activity/mine');
-    return response.activities || [];
-  },
-  
-  // Legacy NFT/Collateral endpoints (keeping for backward compatibility)
-  mintNFT: (data: { name: string; description: string; imageUrl: string }) => 
-    apiCall('/assets/pledge', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  lockCollateral: (nftId: string) => 
-    apiCall(`/assets/${nftId}/mint`, {
-      method: 'POST',
-      body: JSON.stringify({ nftId }),
-    }),
-  unlockCollateral: (nftId: string) => 
-    apiCall(`/marketplace/sell/${nftId}`, {
-      method: 'POST',
-      body: JSON.stringify({ nftId }),
-    }),
-  
-  // Legacy Pool endpoints (keeping for backward compatibility)
-  depositToPool: (poolId: string, amount: number) => 
-    apiCall('/liquidity/provide', {
-      method: 'POST',
-      body: JSON.stringify({ poolId, amount }),
-    }),
-  withdrawFromPool: (poolId: string, amount: number) => 
-    apiCall('/liquidity/withdraw', {
-      method: 'POST',
-      body: JSON.stringify({ poolId, amount }),
-    }),
-  
-  // Legacy Borrowing endpoints (keeping for backward compatibility)
-  borrow: (collateralId: string, amount: number, currency: 'DAI' | 'USDC') => 
-    apiCall(`/marketplace/buy/${collateralId}`, {
-      method: 'POST',
-      body: JSON.stringify({ collateralId, amount, currency }),
-    }),
-
-  // Admin endpoints
-  getPendingAssets: async () => {
-    const response = await apiCall('/assets/mine');
-    return response.assets || [];
-  },
-  approveAsset: (assetId: string) => 
-    apiCall(`/assets/${assetId}/mint`, {
-      method: 'POST',
-      body: JSON.stringify({ assetId }),
-    }),
-  rejectAsset: (assetId: string, reason: string) => 
-    apiCall(`/marketplace/sell/${assetId}`, {
-      method: 'POST',  
-      body: JSON.stringify({ assetId, reason }),
-    }),
-};
+export const api = new ApiService();

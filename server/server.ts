@@ -14,6 +14,7 @@ import { Asset, IAsset } from './models/Asset.js';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', true); // Add this line
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
